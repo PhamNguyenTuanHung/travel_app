@@ -1,0 +1,201 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model banners {
+  id         Int      @id @default(autoincrement())
+  title      String   @db.VarChar(150)
+  image_url  String   @db.VarChar(255)
+  type       String   @db.VarChar(20)
+  target_url String?  @db.VarChar(255)
+  start_date DateTime @db.Timestamptz(6)
+  end_date   DateTime @db.Timestamptz(6)
+  is_active  Boolean  @default(true)
+}
+
+model categories {
+  id           Int      @id @default(autoincrement())
+  icon_url     String   @db.VarChar(255)
+  marker_color String   @db.VarChar(7)
+  name_vi      String   @db.VarChar(100)
+  name_en      String   @db.VarChar(100)
+  places       places[]
+}
+
+model favorites {
+  user_id  String @db.Uuid
+  place_id BigInt
+  places   places @relation(fields: [place_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users    users  @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([user_id, place_id])
+}
+
+model gamification_configs {
+  action_key String    @id @db.VarChar(50)
+  points     Int
+  updated_at DateTime? @default(now()) @db.Timestamptz(6)
+}
+
+model loyalty_points_history {
+  id                BigInt    @id @default(autoincrement())
+  user_id           String    @db.Uuid
+  action_type       String    @db.VarChar(50)
+  points_earned     Int
+  blockchain_status String    @default("none") @db.VarChar(20)
+  created_at        DateTime? @default(now()) @db.Timestamptz(6)
+  users             users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([user_id], map: "idx_loyalty_history_user")
+}
+
+model place_images {
+  id         BigInt  @id @default(autoincrement())
+  place_id   BigInt
+  image_url  String  @db.VarChar(255)
+  is_primary Boolean @default(false)
+  places     places  @relation(fields: [place_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([place_id], map: "idx_place_images_place")
+}
+
+/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
+model places {
+  id                   BigInt                  @id @default(autoincrement())
+  province_id          Int
+  category_id          Int
+  name_vi              String                  @db.VarChar(255)
+  name_en              String                  @db.VarChar(255)
+  description_vi       String
+  description_en       String
+  address_vi           String                  @db.VarChar(255)
+  address_en           String                  @db.VarChar(255)
+  latitude             Decimal                 @db.Decimal(10, 8)
+  longitude            Decimal                 @db.Decimal(11, 8)
+  geom                 Unsupported("geometry")
+  phone                String?                 @db.VarChar(20)
+  opening_hours        String?                 @db.VarChar(255)
+  price_range          String?                 @db.VarChar(100)
+  has_parking          Boolean                 @default(false)
+  is_sponsored         Boolean                 @default(false)
+  sponsored_expires_at DateTime?               @db.Timestamptz(6)
+  avg_rating           Decimal                 @default(0.0) @db.Decimal(2, 1)
+  total_reviews        Int                     @default(0)
+  total_favorites      Int                     @default(0)
+  total_visits         Int                     @default(0)
+  total_views          Int                     @default(0)
+  favorites            favorites[]
+  place_images         place_images[]
+  categories           categories              @relation(fields: [category_id], references: [id], onUpdate: NoAction)
+  provinces            provinces               @relation(fields: [province_id], references: [id], onUpdate: NoAction)
+  reviews              reviews[]
+  trip_places          trip_places[]
+  user_checkins        user_checkins[]
+
+  @@index([category_id], map: "idx_places_category")
+  @@index([geom], map: "idx_places_geom", type: Gist)
+  @@index([province_id], map: "idx_places_province")
+}
+
+model provinces {
+  id         Int      @id @default(autoincrement())
+  slug       String   @unique @db.VarChar(100)
+  name_vi    String   @db.VarChar(100)
+  name_en    String   @db.VarChar(100)
+  is_visible Boolean  @default(true)
+  places     places[]
+}
+
+model review_images {
+  id        BigInt  @id @default(autoincrement())
+  review_id BigInt
+  image_url String  @db.VarChar(255)
+  reviews   reviews @relation(fields: [review_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model reviews {
+  id            BigInt          @id @default(autoincrement())
+  user_id       String          @db.Uuid
+  place_id      BigInt
+  rating        Int
+  comment       String
+  status        String          @default("approved") @db.VarChar(20)
+  created_at    DateTime?       @default(now()) @db.Timestamptz(6)
+  review_images review_images[]
+  places        places          @relation(fields: [place_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users         users           @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([place_id], map: "idx_reviews_place")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model spatial_ref_sys {
+  srid      Int     @id
+  auth_name String? @db.VarChar(256)
+  auth_srid Int?
+  srtext    String? @db.VarChar(2048)
+  proj4text String? @db.VarChar(2048)
+}
+
+model trip_places {
+  id         BigInt @id @default(autoincrement())
+  trip_id    String @db.Uuid
+  place_id   BigInt
+  sort_order Int    @default(0)
+  places     places @relation(fields: [place_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  trips      trips  @relation(fields: [trip_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([trip_id], map: "idx_trip_places_trip")
+}
+
+model trips {
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id     String        @db.Uuid
+  title       String        @db.VarChar(150)
+  created_at  DateTime?     @default(now()) @db.Timestamptz(6)
+  trip_places trip_places[]
+  users       users         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model user_checkins {
+  id          BigInt    @id @default(autoincrement())
+  user_id     String    @db.Uuid
+  place_id    BigInt
+  verified_at DateTime? @default(now()) @db.Timestamptz(6)
+  places      places    @relation(fields: [place_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users       users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model users {
+  id                     String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  role_id                Int                      @default(2)
+  email                  String?                  @unique @db.VarChar(255)
+  phone                  String?                  @unique @db.VarChar(20)
+  password_hash          String?                  @db.VarChar(255)
+  provider               String                   @default("credentials") @db.VarChar(20)
+  full_name              String                   @db.VarChar(100)
+  avatar_url             String?                  @db.VarChar(255)
+  home_town              String?                  @db.VarChar(100)
+  bio                    String?
+  total_points           Int                      @default(0)
+  status                 String                   @default("active") @db.VarChar(20)
+  created_at             DateTime?                @default(now()) @db.Timestamptz(6)
+  favorites              favorites[]
+  loyalty_points_history loyalty_points_history[]
+  reviews                reviews[]
+  trips                  trips[]
+  user_checkins          user_checkins[]
+  roles                  roles                    @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model roles {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique @db.VarChar(50)
+  users users[]
+}
