@@ -195,7 +195,7 @@ TRUNCATE review_images, reviews, user_checkins, trip_places, trips, favorites, p
 INSERT INTO roles (id, name) VALUES 
 (1, 'admin'), 
 (2, 'user'), 
-(3, 'moderator');
+(3, 'staff');
 
 SELECT setval('roles_id_seq', (SELECT MAX(id) FROM roles));
 

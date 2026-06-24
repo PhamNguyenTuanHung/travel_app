@@ -428,7 +428,7 @@ Các banner quảng cáo được đặt tại ứng dụng client.
 *   **Auth Required**: Không (Public API)
 *   **Query Parameters**:
     - `is_active` (`true`/`false` - xem banner đang hoạt động)
-    - `type` (loại banner: `home`, `destination`,...)
+    - `type` (loại banner: `home`, `place`,...)
     - `search` (tìm theo tiêu đề banner)
 
 #### 📍 Thêm mới / Cập nhật / Xóa Banner
