@@ -48,6 +48,172 @@ Dưới đây là sơ đồ quan hệ của toàn bộ 19 thực thể trong h�
 
 ```mermaid
 erDiagram
+    roles {
+        int id PK
+        varchar name UK
+    }
+    users {
+        uuid id PK
+        int role_id FK
+        varchar email UK
+        varchar phone UK
+        varchar password_hash
+        varchar provider
+        varchar full_name
+        varchar avatar_url
+        varchar home_town
+        text bio
+        int total_points
+        varchar status
+        timestamp created_at
+    }
+    loyalty_points_history {
+        bigint id PK
+        uuid user_id FK
+        varchar action_type
+        int points_earned
+        varchar blockchain_status
+        timestamp created_at
+    }
+    providers {
+        int id PK
+        varchar name
+        varchar logo_url
+        varchar contact_name
+        varchar phone
+        varchar email
+        varchar website_url
+        varchar status
+        timestamp created_at
+    }
+    provinces {
+        int id PK
+        varchar slug UK
+        varchar name_vi
+        varchar name_en
+        boolean is_visible
+    }
+    districts {
+        int id PK
+        int province_id FK
+        varchar slug
+        varchar name_vi
+        varchar name_en
+        boolean is_visible
+    }
+    categories {
+        int id PK
+        varchar icon_url
+        varchar marker_color
+        varchar name_vi
+        varchar name_en
+    }
+    places {
+        bigint id PK
+        int province_id FK
+        int category_id FK
+        int provider_id FK
+        varchar name_vi
+        varchar name_en
+        text description_vi
+        text description_en
+        varchar address_vi
+        varchar address_en
+        decimal latitude
+        decimal longitude
+        geometry geom
+        varchar phone
+        varchar opening_hours
+        varchar price_range
+        boolean has_parking
+        boolean is_sponsored
+        timestamp sponsored_expires_at
+        decimal avg_rating
+        int total_reviews
+        int total_favorites
+        int total_visits
+        int total_views
+    }
+    place_images {
+        bigint id PK
+        bigint place_id FK
+        varchar image_url
+        boolean is_primary
+    }
+    favorites {
+        uuid user_id PK, FK
+        bigint place_id PK, FK
+    }
+    trips {
+        uuid id PK
+        uuid user_id FK
+        varchar title
+        timestamp created_at
+    }
+    trip_places {
+        bigint id PK
+        uuid trip_id FK
+        bigint place_id FK
+        int sort_order
+    }
+    user_checkins {
+        bigint id PK
+        uuid user_id FK
+        bigint place_id FK
+        timestamp verified_at
+    }
+    reviews {
+        bigint id PK
+        uuid user_id FK
+        bigint place_id FK
+        int rating
+        text comment
+        varchar status
+        timestamp created_at
+    }
+    review_images {
+        bigint id PK
+        bigint review_id FK
+        varchar image_url
+    }
+    banners {
+        int id PK
+        int provider_id FK
+        bigint place_id FK
+        varchar title
+        varchar image_url
+        varchar type
+        varchar target_url
+        timestamp start_date
+        timestamp end_date
+        boolean is_active
+    }
+    ad_clicks_impressions {
+        bigint id PK
+        int banner_id FK
+        bigint place_id FK
+        uuid user_id FK
+        varchar event_type
+        varchar ip_address
+        text user_agent
+        timestamp created_at
+    }
+    gamification_configs {
+        varchar action_key PK
+        int points
+        timestamp updated_at
+    }
+    notifications {
+        bigint id PK
+        uuid user_id FK
+        varchar title_vi
+        varchar title_en
+        text content_vi
+        text content_en
+        boolean is_read
+        timestamp created_at
+    }
+
     roles ||--o{ users : "has"
     providers ||--o{ places : "owns"
     providers ||--o{ banners : "pays_for"
