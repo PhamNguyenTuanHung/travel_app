@@ -7,7 +7,7 @@ class FavoriteService {
       include: {
         places: {
           include: {
-            provinces: true
+            provinces: true,
           }
         }
       }

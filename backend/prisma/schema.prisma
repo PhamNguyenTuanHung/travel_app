@@ -1,5 +1,6 @@
 generator client {
   provider   = "prisma-client-js"
+  output     = "../src/generated/prisma"
   engineType = "library"
 }
 
@@ -76,7 +77,6 @@ model places {
   id                    BigInt                  @id @default(autoincrement())
   province_id           Int
   category_id           Int
-  provider_id           Int?
   name_vi               String                  @db.VarChar(255)
   name_en               String                  @db.VarChar(255)
   description_vi        String
@@ -99,7 +99,6 @@ model places {
   place_images          place_images[]
   categories            categories              @relation(fields: [category_id], references: [id], onUpdate: NoAction)
   provinces             provinces               @relation(fields: [province_id], references: [id], onUpdate: NoAction)
-  providers             providers?              @relation(fields: [provider_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
   reviews               reviews[]
   trip_places           trip_places[]
   user_checkins         user_checkins[]
@@ -109,7 +108,6 @@ model places {
   @@index([category_id], map: "idx_places_category")
   @@index([geom], map: "idx_places_geom", type: Gist)
   @@index([province_id], map: "idx_places_province")
-  @@index([provider_id], map: "idx_places_provider")
 }
 
 model provinces {
@@ -231,7 +229,6 @@ model providers {
   website_url  String?   @db.VarChar(255)
   status       String    @default("active") @db.VarChar(20)
   created_at   DateTime? @default(now()) @db.Timestamptz(6)
-  places       places[]
   ads          ads[]
 }
 

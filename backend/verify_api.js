@@ -355,6 +355,226 @@ async function executeSuite() {
   }
   console.log(`Fetched ${pointsList.count} points history entries.`);
 
+  // Test: Districts CRUD
+  console.log("\n--- Testing Districts CRUD ---");
+  const createDistrictRes = await fetch(`${BASE_URL}/districts`, {
+    method: "POST",
+    headers: authHeaders,
+    body: JSON.stringify({
+      province_id: 1,
+      slug: "test-district-" + Date.now(),
+      name_vi: "Quận Thử Nghiệm",
+      name_en: "Test District",
+      is_visible: true
+    })
+  });
+  const newDistrict = await createDistrictRes.json();
+  if (createDistrictRes.status !== 201) {
+    throw new Error(`Create district failed: ${JSON.stringify(newDistrict)}`);
+  }
+  console.log("Created District ID:", newDistrict.id);
+  const newDistrictId = newDistrict.id;
+
+  const updateDistrictRes = await fetch(`${BASE_URL}/districts/${newDistrictId}`, {
+    method: "PUT",
+    headers: authHeaders,
+    body: JSON.stringify({
+      name_vi: "Quận Thử Nghiệm Cập Nhật"
+    })
+  });
+  const updatedDistrict = await updateDistrictRes.json();
+  if (updateDistrictRes.status !== 200) {
+    throw new Error(`Update district failed: ${JSON.stringify(updatedDistrict)}`);
+  }
+  console.log("Updated District name_vi:", updatedDistrict.name_vi);
+
+  const getDistrictsRes = await fetch(`${BASE_URL}/districts?search=Quận`);
+  const districtsData = await getDistrictsRes.json();
+  if (getDistrictsRes.status !== 200) {
+    throw new Error(`Get districts failed: ${JSON.stringify(districtsData)}`);
+  }
+  console.log(`Fetched filtered districts count: ${districtsData.count}`);
+
+  const deleteDistrictRes = await fetch(`${BASE_URL}/districts/${newDistrictId}`, {
+    method: "DELETE",
+    headers: authHeaders
+  });
+  if (deleteDistrictRes.status !== 200) {
+    throw new Error("Delete district failed");
+  }
+  console.log("Deleted district ID:", newDistrictId);
+
+
+  // Test: Providers CRUD
+  console.log("\n--- Testing Providers CRUD ---");
+  const createProviderRes = await fetch(`${BASE_URL}/providers`, {
+    method: "POST",
+    headers: authHeaders,
+    body: JSON.stringify({
+      name: "Đối Tác Thử Nghiệm",
+      logo_url: "https://example.com/logo.png",
+      contact_name: "Nguyễn Văn Test",
+      phone: "0999888777",
+      email: "testprovider@example.com",
+      website_url: "https://testprovider.com",
+      status: "active"
+    })
+  });
+  const newProvider = await createProviderRes.json();
+  if (createProviderRes.status !== 201) {
+    throw new Error(`Create provider failed: ${JSON.stringify(newProvider)}`);
+  }
+  console.log("Created Provider ID:", newProvider.id);
+  const newProviderId = newProvider.id;
+
+  const updateProviderRes = await fetch(`${BASE_URL}/providers/${newProviderId}`, {
+    method: "PUT",
+    headers: authHeaders,
+    body: JSON.stringify({
+      name: "Đối Tác Cập Nhật"
+    })
+  });
+  const updatedProvider = await updateProviderRes.json();
+  if (updateProviderRes.status !== 200) {
+    throw new Error(`Update provider failed: ${JSON.stringify(updatedProvider)}`);
+  }
+  console.log("Updated Provider name:", updatedProvider.name);
+
+  const getProvidersRes = await fetch(`${BASE_URL}/providers?search=Đối`, {
+    headers: authHeaders
+  });
+  const providersData = await getProvidersRes.json();
+  if (getProvidersRes.status !== 200) {
+    throw new Error(`Get providers failed: ${JSON.stringify(providersData)}`);
+  }
+  console.log(`Fetched filtered providers count: ${providersData.count}`);
+
+  const deleteProviderRes = await fetch(`${BASE_URL}/providers/${newProviderId}`, {
+    method: "DELETE",
+    headers: authHeaders
+  });
+  if (deleteProviderRes.status !== 200) {
+    throw new Error("Delete provider failed");
+  }
+  console.log("Deleted provider ID:", newProviderId);
+
+
+  // Test: Notifications CRUD
+  console.log("\n--- Testing Notifications CRUD ---");
+  const createNotificationRes = await fetch(`${BASE_URL}/notifications`, {
+    method: "POST",
+    headers: authHeaders,
+    body: JSON.stringify({
+      user_id: userId,
+      title_vi: "Thông báo thử nghiệm",
+      title_en: "Test notification",
+      content_vi: "Nội dung thông báo thử nghiệm",
+      content_en: "Test notification content",
+      is_read: false
+    })
+  });
+  const newNotification = await createNotificationRes.json();
+  if (createNotificationRes.status !== 201) {
+    throw new Error(`Create notification failed: ${JSON.stringify(newNotification)}`);
+  }
+  console.log("Created Notification ID:", newNotification.id);
+  const newNotificationId = newNotification.id;
+
+  const updateNotificationRes = await fetch(`${BASE_URL}/notifications/${newNotificationId}`, {
+    method: "PUT",
+    headers: authHeaders,
+    body: JSON.stringify({
+      title_vi: "Thông báo cập nhật"
+    })
+  });
+  const updatedNotification = await updateNotificationRes.json();
+  if (updateNotificationRes.status !== 200) {
+    throw new Error(`Update notification failed: ${JSON.stringify(updatedNotification)}`);
+  }
+  console.log("Updated Notification title_vi:", updatedNotification.title_vi);
+
+  // Mark read
+  const markReadRes = await fetch(`${BASE_URL}/notifications/my/${newNotificationId}/read`, {
+    method: "PUT",
+    headers: authHeaders
+  });
+  const markedNotif = await markReadRes.json();
+  if (markReadRes.status !== 200) {
+    throw new Error(`Mark notification read failed: ${JSON.stringify(markedNotif)}`);
+  }
+  console.log("Notification marked as read. ID:", markedNotif.id);
+
+  // Get my notifications
+  const getMyNotifsRes = await fetch(`${BASE_URL}/notifications/my`, {
+    headers: authHeaders
+  });
+  const myNotifs = await getMyNotifsRes.json();
+  if (getMyNotifsRes.status !== 200) {
+    throw new Error(`Get my notifications failed: ${JSON.stringify(myNotifs)}`);
+  }
+  console.log(`Fetched ${myNotifs.count} personal notifications.`);
+
+  const deleteNotificationRes = await fetch(`${BASE_URL}/notifications/${newNotificationId}`, {
+    method: "DELETE",
+    headers: authHeaders
+  });
+  if (deleteNotificationRes.status !== 200) {
+    throw new Error("Delete notification failed");
+  }
+  console.log("Deleted notification ID:", newNotificationId);
+
+
+  // Test: Ad Clicks & Impressions (Ad Logs) CRUD
+  console.log("\n--- Testing Ad Logs CRUD ---");
+  const createAdLogRes = await fetch(`${BASE_URL}/ad-logs`, {
+    method: "POST",
+    headers: authHeaders,
+    body: JSON.stringify({
+      ad_id: 1,
+      place_id: 1,
+      event_type: "click",
+      ip_address: "127.0.0.1",
+      user_agent: "Mozilla/5.0"
+    })
+  });
+  const newAdLog = await createAdLogRes.json();
+  if (createAdLogRes.status !== 201) {
+    throw new Error(`Create ad log failed: ${JSON.stringify(newAdLog)}`);
+  }
+  console.log("Created Ad Log ID:", newAdLog.id);
+  const newAdLogId = newAdLog.id;
+
+  const updateAdLogRes = await fetch(`${BASE_URL}/ad-logs/${newAdLogId}`, {
+    method: "PUT",
+    headers: authHeaders,
+    body: JSON.stringify({
+      event_type: "impression"
+    })
+  });
+  const updatedAdLog = await updateAdLogRes.json();
+  if (updateAdLogRes.status !== 200) {
+    throw new Error(`Update ad log failed: ${JSON.stringify(updatedAdLog)}`);
+  }
+  console.log("Updated Ad Log event_type:", updatedAdLog.event_type);
+
+  const getAdLogsRes = await fetch(`${BASE_URL}/ad-logs?event_type=impression`, {
+    headers: authHeaders
+  });
+  const adLogsData = await getAdLogsRes.json();
+  if (getAdLogsRes.status !== 200) {
+    throw new Error(`Get ad logs failed: ${JSON.stringify(adLogsData)}`);
+  }
+  console.log(`Fetched ${adLogsData.count} ad logs.`);
+
+  const deleteAdLogRes = await fetch(`${BASE_URL}/ad-logs/${newAdLogId}`, {
+    method: "DELETE",
+    headers: authHeaders
+  });
+  if (deleteAdLogRes.status !== 200) {
+    throw new Error("Delete ad log failed");
+  }
+  console.log("Deleted ad log ID:", newAdLogId);
+
   // Clean up
   console.log("\n--- Cleaning up new test entities ---");
   

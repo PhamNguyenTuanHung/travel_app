@@ -17,6 +17,10 @@ const FavoriteRoute = require("./routes/favorite.routes");
 const TripRoute = require("./routes/trip.routes");
 const CheckinRoute = require("./routes/checkin.routes");
 const PointsRoute = require("./routes/points.routes");
+const DistrictRoute = require("./routes/district.routes");
+const ProviderRoute = require("./routes/provider.routes");
+const NotificationRoute = require("./routes/notification.routes");
+const AdClickImpressionRoute = require("./routes/ad-click-impression.routes");
 
 // ===================== MIDDLEWARE =====================
 app.use(cors());
@@ -37,6 +41,10 @@ app.use("/favorites", FavoriteRoute);
 app.use("/trips", TripRoute);
 app.use("/checkins", CheckinRoute);
 app.use("/loyalty-points", PointsRoute);
+app.use("/districts", DistrictRoute);
+app.use("/providers", ProviderRoute);
+app.use("/notifications", NotificationRoute);
+app.use("/ad-logs", AdClickImpressionRoute);
 
 // ===================== HANDLE 404 =====================
 app.use((req, res) => {

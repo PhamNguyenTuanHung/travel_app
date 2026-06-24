@@ -56,6 +56,30 @@ const protect = {
 
     // Dashboard
     dashboardRead: [auth, permit("dashboard.read")],
+
+    // Provider
+    providerRead: [auth, permit("provider.read")],
+    providerCreate: [auth, permit("provider.create")],
+    providerUpdate: [auth, permit("provider.update")],
+    providerDelete: [auth, permit("provider.delete")],
+
+    // Notification
+    notificationRead: [auth, permit("notification.read")],
+    notificationCreate: [auth, permit("notification.create")],
+    notificationUpdate: [auth, permit("notification.update")],
+    notificationDelete: [auth, permit("notification.delete")],
+
+    // Ad Log
+    adLogRead: [auth, permit("adLog.read")],
+    adLogCreate: [auth, permit("adLog.create")],
+    adLogUpdate: [auth, permit("adLog.update")],
+    adLogDelete: [auth, permit("adLog.delete")],
+
+    // Role
+    roleRead: [auth, permit("role.read")],
+    roleCreate: [auth, permit("role.create")],
+    roleUpdate: [auth, permit("role.update")],
+    roleDelete: [auth, permit("role.delete")],
 };
 
 module.exports = protect;

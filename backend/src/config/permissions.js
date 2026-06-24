@@ -26,7 +26,22 @@ const PERMISSIONS = {
         "trip.read",
         "trip.write",
         "checkin.read",
-        "checkin.write"
+        "checkin.write",
+
+        "provider.read",
+        "provider.create",
+        "provider.update",
+        "provider.delete",
+
+        "notification.read",
+        "notification.create",
+        "notification.update",
+        "notification.delete",
+
+        "adLog.read",
+        "adLog.create",
+        "adLog.update",
+        "adLog.delete"
     ],
 
     user: [
@@ -48,7 +63,11 @@ const PERMISSIONS = {
         "trip.read",
         "trip.write",
         "checkin.read",
-        "checkin.write"
+        "checkin.write",
+
+        "provider.read",
+        "notification.read",
+        "adLog.create"
     ],
 };
 
