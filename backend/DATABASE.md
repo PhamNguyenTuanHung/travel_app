@@ -1,5 +1,5 @@
 # Tài liệu Thiết kế & Kiến trúc Cơ sở dữ liệu 🇻🇳
-**Dự án**: Mekong Ơi (Danh bạ Du lịch Ẩm thực & Quảng cáo)
+**Dự án**: Mekong Ơi
 
 Tài liệu này mô tả chi tiết thiết kế lược đồ cơ sở dữ liệu (Database Schema), sơ đồ quan hệ thực thể (ERD), đặc tả các bảng dữ liệu, và các kỹ thuật xử lý không gian địa lý (PostGIS) kết hợp với tính nhất quán trong ứng dụng Mekong Ơi.
 
@@ -36,7 +36,7 @@ Tài liệu này mô tả chi tiết thiết kế lược đồ cơ sở dữ li
 
 Hệ thống lưu trữ sử dụng cơ sở dữ liệu quan hệ kết hợp các tính năng nâng cao phục vụ cho ứng dụng bản đồ:
 
-*   **Database Engine**: PostgreSQL v15+
+*   **Database Engine**: PostgreSQL v17
 *   **Geospatial Extension**: **PostGIS** được kích hoạt để lưu trữ và tính toán khoảng cách địa lý (tọa độ GPS).
 *   **Schema Manager & Client**: **Prisma ORM** quản lý cấu trúc bảng qua file `schema.prisma`.
 
