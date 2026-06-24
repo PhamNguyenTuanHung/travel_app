@@ -1,5 +1,5 @@
 # Tài liệu Thiết kế & Kiến trúc Cơ sở dữ liệu 🇻🇳
-**Dự án**: Mekong Ơi (Danh bạ Du lịch Ẩm thực & Quảng cáo)
+**Dự án**: Mekong Ơi
 
 Tài liệu này mô tả chi tiết thiết kế lược đồ cơ sở dữ liệu (Database Schema), sơ đồ quan hệ thực thể (ERD), đặc tả các bảng dữ liệu, và các kỹ thuật xử lý không gian địa lý (PostGIS) kết hợp với tính nhất quán trong ứng dụng Mekong Ơi.
 
