@@ -28,11 +28,11 @@ const protect = {
     locationUpdate: [auth, permit("location.update")],
     locationDelete: [auth, permit("location.delete")],
 
-    // Banner
-    bannerRead: [auth, permit("banner.read")],
-    bannerCreate: [auth, permit("banner.create")],
-    bannerUpdate: [auth, permit("banner.update")],
-    bannerDelete: [auth, permit("banner.delete")],
+    // Ad
+    adRead: [auth, permit("ad.read")],
+    adCreate: [auth, permit("ad.create")],
+    adUpdate: [auth, permit("ad.update")],
+    adDelete: [auth, permit("ad.delete")],
 
     // Gamification
     gamificationRead: [auth, permit("gamification.read")],

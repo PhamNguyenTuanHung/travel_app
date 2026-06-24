@@ -13,10 +13,10 @@ const PERMISSIONS = {
         "dashboard.read",
         "user.read",
 
-        "banner.create",
-        "banner.read",
-        "banner.update",
-        "banner.delete",
+        "ad.create",
+        "ad.read",
+        "ad.update",
+        "ad.delete",
 
         "gamification.read",
         "points.read",
@@ -40,7 +40,7 @@ const PERMISSIONS = {
         "profile.read",
         "profile.update",
 
-        "banner.read",
+        "ad.read",
         "gamification.read",
         "points.read",
         "favorite.read",

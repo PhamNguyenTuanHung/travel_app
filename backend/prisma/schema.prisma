@@ -7,7 +7,7 @@ datasource db {
   provider = "postgresql"
 }
 
-model banners {
+model ads {
   id                    Int                     @id @default(autoincrement())
   provider_id           Int?
   place_id              BigInt?
@@ -22,8 +22,8 @@ model banners {
   places                places?                 @relation(fields: [place_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
   ad_clicks_impressions ad_clicks_impressions[]
 
-  @@index([provider_id], map: "idx_banners_provider")
-  @@index([place_id], map: "idx_banners_place")
+  @@index([provider_id], map: "idx_ads_provider")
+  @@index([place_id], map: "idx_ads_place")
 }
 
 model categories {
@@ -90,8 +90,6 @@ model places {
   opening_hours         String?                 @db.VarChar(255)
   price_range           String?                 @db.VarChar(100)
   has_parking           Boolean                 @default(false)
-  is_sponsored          Boolean                 @default(false)
-  sponsored_expires_at  DateTime?               @db.Timestamptz(6)
   avg_rating            Decimal                 @default(0.0) @db.Decimal(2, 1)
   total_reviews         Int                     @default(0)
   total_favorites       Int                     @default(0)
@@ -105,7 +103,7 @@ model places {
   reviews               reviews[]
   trip_places           trip_places[]
   user_checkins         user_checkins[]
-  banners               banners[]
+  ads                   ads[]
   ad_clicks_impressions ad_clicks_impressions[]
 
   @@index([category_id], map: "idx_places_category")
@@ -234,23 +232,23 @@ model providers {
   status       String    @default("active") @db.VarChar(20)
   created_at   DateTime? @default(now()) @db.Timestamptz(6)
   places       places[]
-  banners      banners[]
+  ads          ads[]
 }
 
 model ad_clicks_impressions {
   id         BigInt    @id @default(autoincrement())
-  banner_id  Int?
+  ad_id      Int?
   place_id   BigInt?
   user_id    String?   @db.Uuid
   event_type String    @db.VarChar(20)
   ip_address String?   @db.VarChar(45)
   user_agent String?
   created_at DateTime? @default(now()) @db.Timestamptz(6)
-  banners    banners?  @relation(fields: [banner_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  ads        ads?      @relation(fields: [ad_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   places     places?   @relation(fields: [place_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   users      users?    @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
-  @@index([banner_id], map: "idx_ad_logs_banner")
+  @@index([ad_id], map: "idx_ad_logs_ad")
   @@index([place_id], map: "idx_ad_logs_place")
   @@index([user_id], map: "idx_ad_logs_user")
 }

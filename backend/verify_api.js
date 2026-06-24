@@ -209,9 +209,9 @@ async function executeSuite() {
   }
   console.log("Updated Category name_vi:", updatedCategory.name_vi);
 
-  // Test: Banners CRUD
-  console.log("\n--- Testing Banners CRUD ---");
-  const createBannerRes = await fetch(`${BASE_URL}/banners`, {
+  // Test: Ads CRUD
+  console.log("\n--- Testing Ads CRUD ---");
+  const createAdRes = await fetch(`${BASE_URL}/ads`, {
     method: "POST",
     headers: authHeaders,
     body: JSON.stringify({
@@ -224,12 +224,12 @@ async function executeSuite() {
       is_active: true
     })
   });
-  const newBanner = await createBannerRes.json();
-  if (createBannerRes.status !== 201) {
-    throw new Error(`Create banner failed: ${JSON.stringify(newBanner)}`);
+  const newAd = await createAdRes.json();
+  if (createAdRes.status !== 201) {
+    throw new Error(`Create ad failed: ${JSON.stringify(newAd)}`);
   }
-  console.log("Created Banner ID:", newBanner.id);
-  const bannerId = newBanner.id;
+  console.log("Created Ad ID:", newAd.id);
+  const adId = newAd.id;
 
   // Test: Gamification Configs CRUD
   console.log("\n--- Testing Gamification Configs CRUD ---");
@@ -388,15 +388,15 @@ async function executeSuite() {
   }
   console.log("Deleted gamification config key:", configKey);
 
-  // Delete Banner
-  const delBannerRes = await fetch(`${BASE_URL}/banners/${bannerId}`, {
+  // Delete Ad
+  const delAdRes = await fetch(`${BASE_URL}/ads/${adId}`, {
     method: "DELETE",
     headers: authHeaders
   });
-  if (delBannerRes.status !== 200) {
-    throw new Error("Delete banner failed");
+  if (delAdRes.status !== 200) {
+    throw new Error("Delete ad failed");
   }
-  console.log("Deleted banner ID:", bannerId);
+  console.log("Deleted ad ID:", adId);
 
   // Delete Category
   const delCatRes = await fetch(`${BASE_URL}/categories/${catId}`, {

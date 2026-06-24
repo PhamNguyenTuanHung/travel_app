@@ -68,28 +68,42 @@ class PlaceService {
       };
     }
 
-    const [placesList, totalCount] = await Promise.all([
+    const [placesList] = await Promise.all([
       prisma.places.findMany({
         where,
-        take,
-        skip,
         include: {
           provinces: true,
           categories: true,
           place_images: {
             where: { is_primary: true },
           },
+          ads: {
+            where: {
+              type: "sponsored",
+              is_active: true,
+              start_date: { lte: new Date() },
+              end_date: { gte: new Date() }
+            }
+          }
         },
-        orderBy: [
-          { is_sponsored: "desc" },
-          { id: "asc" },
-        ],
       }),
-
-      prisma.places.count({ where }),
     ]);
 
-    const rows = placesList.map((place) => ({
+    const mappedPlaces = placesList.map((place) => ({
+      ...place,
+      is_sponsored: place.ads && place.ads.length > 0
+    }));
+
+    mappedPlaces.sort((a, b) => {
+      if (a.is_sponsored && !b.is_sponsored) return -1;
+      if (!a.is_sponsored && b.is_sponsored) return 1;
+      return Number(a.id - b.id);
+    });
+
+    const totalCount = mappedPlaces.length;
+    const paginatedPlaces = mappedPlaces.slice(skip, skip + take);
+
+    const rows = paginatedPlaces.map((place) => ({
       id: Number(place.id),
       name: place.name_vi,
       province: place.provinces?.name_vi || "",
@@ -184,11 +198,11 @@ class PlaceService {
       INSERT INTO places (
         province_id, category_id, name_vi, name_en, description_vi, description_en,
         address_vi, address_en, latitude, longitude, geom, phone, opening_hours, price_range,
-        has_parking, is_sponsored, avg_rating, total_reviews, total_favorites, total_visits, total_views
+        has_parking, avg_rating, total_reviews, total_favorites, total_visits, total_views
       ) VALUES (
         ${prov.id}, 3, ${name_vi}, ${name_en}, ${description_vi}, ${description_en},
         ${address_vi}, ${address_en}, ${latitude}, ${longitude}, ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326),
-        '', '08:00 - 17:00', '', false, false, 0.0, 0, 0, 0, 0
+        '', '08:00 - 17:00', '', false, 0.0, 0, 0, 0, 0
       ) RETURNING id
     `;
 
