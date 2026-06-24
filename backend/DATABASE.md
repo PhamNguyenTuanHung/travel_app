@@ -43,7 +43,6 @@ Hệ thống lưu trữ sử dụng cơ sở dữ liệu quan hệ kết hợp c
 ---
 
 ## 2. Sơ đồ quan hệ thực thể (ERD)
-
 Dưới đây là sơ đồ quan hệ của toàn bộ 19 thực thể trong hệ thống Mekong Ơi:
 
 ```mermaid
