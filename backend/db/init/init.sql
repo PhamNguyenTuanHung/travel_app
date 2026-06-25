@@ -157,6 +157,7 @@ CREATE TABLE user_checkins (
     latitude NUMERIC(10, 8),
     longitude NUMERIC(11, 8),
     geom GEOMETRY(Point, 4326),
+    distance_to_place_meters NUMERIC(10, 2),
     verified_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -21,7 +21,7 @@ class CheckinService {
     });
   }
 
-  async addCheckin(user_id, place_id, latitude, longitude) {
+  async addCheckin(user_id, place_id, latitude, longitude, accuracy) {
     const placeId = BigInt(place_id);
     const place = await prisma.places.findUnique({ where: { id: placeId } });
     if (!place) {
@@ -40,11 +40,17 @@ class CheckinService {
         throw new Error("TOO_FAR_FROM_PLACE");
       }
 
+      if (accuracy !== undefined && accuracy !== null && accuracy !== false && accuracy > CHECKIN_RULES.MAX_GPS_ACCURACY_METERS) {
+        throw new Error("LOW_ACCURACY");
+      }
+
       const inserted = await prisma.$queryRaw`
         INSERT INTO user_checkins (
-          user_id, place_id, latitude, longitude, geom
+          user_id, place_id, latitude, longitude, geom, distance_to_place_meters
         ) VALUES (
-          ${user_id}::uuid, ${placeId}, ${Number(latitude)}, ${Number(longitude)}, ST_SetSRID(ST_MakePoint(${Number(longitude)}, ${Number(latitude)}), 4326)
+          ${user_id}::uuid, ${placeId}, ${Number(latitude)}, ${Number(longitude)},
+          ST_SetSRID(ST_MakePoint(${Number(longitude)}, ${Number(latitude)}), 4326),
+          ${distance}
         ) RETURNING id, verified_at
       `;
 
@@ -57,6 +63,7 @@ class CheckinService {
         place_id: Number(placeId),
         latitude: Number(latitude),
         longitude: Number(longitude),
+        distance_to_place_meters: distance !== null ? Number(distance) : null,
         verified_at: verifiedAt
       };
     }

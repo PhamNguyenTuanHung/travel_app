@@ -160,6 +160,7 @@ erDiagram
         decimal latitude
         decimal longitude
         geometry geom
+        decimal distance_to_place_meters
         timestamp verified_at
     }
     reviews {
@@ -467,6 +468,7 @@ Nhật ký du khách check-in tại các địa điểm dựa trên định vị
 | `latitude` | `numeric(10,8)` | `Decimal?` | | Vĩ độ thời điểm check-in |
 | `longitude` | `numeric(11,8)` | `Decimal?` | | Kinh độ thời điểm check-in |
 | `geom` | `geometry(Point, 4326)` | `Unsupported?` | | Định vị không gian của điểm check-in (PostGIS) |
+| `distance_to_place_meters` | `numeric(10,2)` | `Decimal?` | | Khoảng cách thực tế tới địa điểm (mét) |
 | `verified_at` | `timestamptz` | `DateTime?` | `default: now()` | Thời điểm check-in |
 
 ---
