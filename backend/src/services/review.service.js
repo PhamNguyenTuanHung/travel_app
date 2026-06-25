@@ -70,14 +70,13 @@ class ReviewService {
   }
 
   async createReview(data) {
-    const { user_id, place_id, destination_id, rating, comment } = data;
-    const targetPlaceId = place_id || destination_id;
+    const { user_id, place_id, rating, comment } = data;
+    const targetPlaceId = place_id;
 
     if (!targetPlaceId) {
       throw new Error("PLACE_ID_REQUIRED");
     }
 
-    // Check if place exists
     const place = await prisma.places.findUnique({
       where: { id: BigInt(targetPlaceId) }
     });
@@ -85,12 +84,21 @@ class ReviewService {
       throw new Error("PLACE_NOT_FOUND");
     }
 
-    // Check if user exists
     const user = await prisma.users.findUnique({
       where: { id: user_id }
     });
     if (!user) {
       throw new Error("USER_NOT_FOUND");
+    }
+
+    const review = await prisma.reviews.findFirst({
+      where: {
+        user_id,
+        place_id: BigInt(targetPlaceId)
+      }
+    })
+    if (review) {
+      throw new Error("REVIEW_ALREADY_EXISTS");
     }
 
     const rate = parseInt(rating);
@@ -132,6 +140,10 @@ class ReviewService {
       throw new Error("REVIEW_NOT_FOUND");
     }
 
+    if (review.user_id !== data.user_id) {
+      throw new Error("UNAUTHORIZED_TO_UPDATE_REVIEW");
+    }
+
     const updateData = {};
     if (data.rating !== undefined) {
       const rate = parseInt(data.rating);
@@ -167,13 +179,17 @@ class ReviewService {
     return reviewMapper.toDTO(updated);
   }
 
-  async deleteReview(id) {
+  async deleteReview(id, user_id) {
     const reviewId = BigInt(id);
     const review = await prisma.reviews.findUnique({
       where: { id: reviewId }
     });
     if (!review) {
       throw new Error("REVIEW_NOT_FOUND");
+    }
+
+    if (review.user_id !== user_id) {
+      throw new Error("UNAUTHORIZED_TO_DELETE_REVIEW");
     }
     await prisma.reviews.delete({
       where: { id: reviewId }

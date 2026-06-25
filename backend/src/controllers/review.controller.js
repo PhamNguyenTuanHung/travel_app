@@ -31,6 +31,7 @@ exports.createReview = async (req, res) => {
 
 exports.updateReview = async (req, res) => {
   try {
+    req.body.user_id = req.user.id;
     const review = await reviewService.updateReview(req.params.id, req.body);
     res.json(serializePrisma(review));
   } catch (err) {
@@ -40,7 +41,8 @@ exports.updateReview = async (req, res) => {
 
 exports.deleteReview = async (req, res) => {
   try {
-    const result = await reviewService.deleteReview(req.params.id);
+    req.body.user_id = req.user.id;
+    const result = await reviewService.deleteReview(req.params.id, req.body);
     res.json(serializePrisma(result));
   } catch (err) {
     res.status(404).json({ message: err.message });

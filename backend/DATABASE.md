@@ -157,6 +157,9 @@ erDiagram
         bigint id PK
         uuid user_id FK
         bigint place_id FK
+        decimal latitude
+        decimal longitude
+        geometry geom
         timestamp verified_at
     }
     reviews {
@@ -461,6 +464,9 @@ Nhật ký du khách check-in tại các địa điểm dựa trên định vị
 | `id` | `bigint` | `BigInt` | `PK`, `autoincrement()` | Khóa chính |
 | `user_id` | `uuid` | `String` | `FK`, `onDelete: Cascade` | Khóa ngoại liên kết `users(id)` |
 | `place_id` | `bigint` | `BigInt` | `FK`, `onDelete: Cascade` | Khóa ngoại liên kết `places(id)` |
+| `latitude` | `numeric(10,8)` | `Decimal?` | | Vĩ độ thời điểm check-in |
+| `longitude` | `numeric(11,8)` | `Decimal?` | | Kinh độ thời điểm check-in |
+| `geom` | `geometry(Point, 4326)` | `Unsupported?` | | Định vị không gian của điểm check-in (PostGIS) |
 | `verified_at` | `timestamptz` | `DateTime?` | `default: now()` | Thời điểm check-in |
 
 ---

@@ -3,9 +3,6 @@ class ReviewMapper {
     if (!review) return null;
     return {
       id: Number(review.id),
-      user_id: review.user_id,
-      place_id: Number(review.place_id),
-      destination_id: Number(review.place_id),
       rating: review.rating,
       comment: review.comment,
       status: review.status,
@@ -16,11 +13,6 @@ class ReviewMapper {
         email: review.users?.email
       },
       place: {
-        id: Number(review.places?.id),
-        name: review.places?.name_vi,
-        province: review.places?.districts?.provinces?.name_vi
-      },
-      destination: {
         id: Number(review.places?.id),
         name: review.places?.name_vi,
         province: review.places?.districts?.provinces?.name_vi

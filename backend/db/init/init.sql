@@ -154,6 +154,9 @@ CREATE TABLE user_checkins (
     id BIGSERIAL PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     place_id BIGINT NOT NULL REFERENCES places(id) ON DELETE CASCADE,
+    latitude NUMERIC(10, 8),
+    longitude NUMERIC(11, 8),
+    geom GEOMETRY(Point, 4326),
     verified_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

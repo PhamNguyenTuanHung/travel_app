@@ -12,8 +12,8 @@ exports.getCheckins = async (req, res) => {
 
 exports.addCheckin = async (req, res) => {
   try {
-    const { place_id } = req.body;
-    const result = await checkinService.addCheckin(req.user.id, place_id);
+    const { place_id, latitude, longitude } = req.body;
+    const result = await checkinService.addCheckin(req.user.id, place_id, latitude, longitude);
     res.status(201).json(serializePrisma(result));
   } catch (err) {
     res.status(400).json({ message: err.message });
