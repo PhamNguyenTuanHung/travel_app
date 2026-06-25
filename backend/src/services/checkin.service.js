@@ -1,6 +1,8 @@
 const prisma = require("../config/db");
+const { CHECKIN_RULES } = require("../config/constant");
 
 class CheckinService {
+
   async getCheckins(user_id) {
     return await prisma.user_checkins.findMany({
       where: { user_id },
@@ -27,7 +29,6 @@ class CheckinService {
     }
 
     if (latitude !== undefined && longitude !== undefined && latitude !== null && longitude !== null) {
-      // Calculate distance in meters using PostGIS geography ST_Distance
       const checkDistance = await prisma.$queryRaw`
         SELECT ST_Distance(
           ST_SetSRID(ST_MakePoint(${Number(longitude)}, ${Number(latitude)}), 4326)::geography,
@@ -35,11 +36,10 @@ class CheckinService {
         ) AS distance
       `;
       const distance = checkDistance[0] ? Number(checkDistance[0].distance) : null;
-      if (distance !== null && distance > 1000) {
+      if (distance !== null && distance > CHECKIN_RULES.MAX_DISTANCE_METERS) {
         throw new Error("TOO_FAR_FROM_PLACE");
       }
 
-      // Execute Raw SQL insert to populate PostGIS geometry field
       const inserted = await prisma.$queryRaw`
         INSERT INTO user_checkins (
           user_id, place_id, latitude, longitude, geom
