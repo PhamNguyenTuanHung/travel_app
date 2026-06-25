@@ -65,7 +65,7 @@ exports.updateProfile = async (req, res) => {
       "full_name",
       "phone",
       "avatar_url",
-      "home_town",
+      "traveler_type",
       "bio"
     ];
 

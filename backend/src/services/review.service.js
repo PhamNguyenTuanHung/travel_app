@@ -24,7 +24,11 @@ class ReviewService {
           users: true,
           places: {
             include: {
-              provinces: true
+              districts: {
+                include: {
+                  provinces: true
+                }
+              }
             }
           }
         },
@@ -48,7 +52,11 @@ class ReviewService {
         users: true,
         places: {
           include: {
-            provinces: true
+            districts: {
+              include: {
+                provinces: true
+              }
+            }
           }
         }
       }
@@ -102,7 +110,11 @@ class ReviewService {
         users: true,
         places: {
           include: {
-            provinces: true
+            districts: {
+              include: {
+                provinces: true
+              }
+            }
           }
         }
       }
@@ -142,7 +154,11 @@ class ReviewService {
         users: true,
         places: {
           include: {
-            provinces: true
+            districts: {
+              include: {
+                provinces: true
+              }
+            }
           }
         }
       }

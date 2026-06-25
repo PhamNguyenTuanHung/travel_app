@@ -4,7 +4,7 @@ services:
   postgres:
     image: postgis/postgis:17-3.5
     container_name: postgres-dev
-    restart: unless-stopped
+    restart: no
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: "123456"
@@ -27,7 +27,7 @@ services:
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin_ui
-    restart: always
+    restart: no
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@gmail.com
       PGADMIN_DEFAULT_PASSWORD: admin123

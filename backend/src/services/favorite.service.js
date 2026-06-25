@@ -7,9 +7,14 @@ class FavoriteService {
       where: { user_id },
       include: {
         places: {
-          // include: {
-          //   provinces: true,
-          // }
+          include: {
+            districts: {
+              include: {
+                provinces: true
+              }
+            },
+            place_images: true
+          }
         }
       }
     });

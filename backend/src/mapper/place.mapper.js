@@ -5,7 +5,8 @@ class PlaceMapper {
       id: Number(place.id),
       name: place.name_vi,
       slug: place.slug,
-      province: place.provinces?.name_vi ?? "",
+      province: place.districts?.provinces?.name_vi ?? "",
+      district: place.districts?.name_vi ?? "",
       description: place.description_vi,
       image_url: place.place_images?.[0]?.image_url ?? "",
       categories: place.categories,
@@ -28,10 +29,12 @@ class PlaceMapper {
     return {
       id: Number(place.id),
       name: place.name_vi,
-      province: place.provinces?.name_vi || '',
+      province: place.districts?.provinces?.name_vi || '',
+      district: place.districts?.name_vi || '',
       description: place.description_vi,
       image_url: place.place_images ? (place.place_images.find(img => img.is_primary)?.image_url || place.place_images?.[0]?.image_url || '') : '',
       total_views: place.total_views,
+      price_range: place.price_range,
       reviews: place.reviews ? place.reviews.map(r => ({
         id: Number(r.id),
         user_id: r.user_id,
@@ -46,11 +49,12 @@ class PlaceMapper {
     };
   }
 
-  toSimpleDTO(id, name, province, description, image_url) {
+  toSimpleDTO(id, name, province, district, description, image_url) {
     return {
       id: Number(id),
       name: name,
       province: province,
+      district: district || '',
       description: description || '',
       image_url: image_url || ''
     };

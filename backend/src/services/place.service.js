@@ -24,7 +24,7 @@ class PlaceService {
           },
         },
         {
-          provinces: {
+          districts: {
             name_vi: {
               contains: search,
               mode: "insensitive",
@@ -32,10 +32,30 @@ class PlaceService {
           },
         },
         {
-          provinces: {
+          districts: {
             name_en: {
               contains: search,
               mode: "insensitive",
+            },
+          },
+        },
+        {
+          districts: {
+            provinces: {
+              name_vi: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+          },
+        },
+        {
+          districts: {
+            provinces: {
+              name_en: {
+                contains: search,
+                mode: "insensitive",
+              },
             },
           },
         },
@@ -56,11 +76,18 @@ class PlaceService {
       prisma.places.findMany({
         where,
         include: {
-          provinces: {
+          districts: {
             select: {
               id: true,
               name_vi: true,
               slug: true,
+              provinces: {
+                select: {
+                  id: true,
+                  name_vi: true,
+                  slug: true,
+                }
+              }
             },
           },
 
@@ -123,7 +150,11 @@ class PlaceService {
         }
       },
       include: {
-        provinces: true,
+        districts: {
+          include: {
+            provinces: true
+          }
+        },
         place_images: true,
         reviews: {
           include: {
@@ -139,7 +170,8 @@ class PlaceService {
   }
 
   async createPlace(data) {
-    const { name, province, description, image_url } = data;
+    const { name, province, district, description, image_url } = data;
+    const districtName = district || province;
 
     // Find or create province
     let prov = await prisma.provinces.findFirst({
@@ -163,23 +195,47 @@ class PlaceService {
       });
     }
 
+    // Find or create district
+    let dist = await prisma.districts.findFirst({
+      where: {
+        province_id: prov.id,
+        OR: [
+          { name_vi: { equals: districtName, mode: 'insensitive' } },
+          { name_en: { equals: districtName, mode: 'insensitive' } }
+        ]
+      }
+    });
+
+    if (!dist) {
+      const slug = districtName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      dist = await prisma.districts.create({
+        data: {
+          province_id: prov.id,
+          slug,
+          name_vi: districtName,
+          name_en: districtName,
+          is_visible: true
+        }
+      });
+    }
+
     const name_vi = name;
     const name_en = name;
     const description_vi = description || '';
     const description_en = description || '';
-    const address_vi = province;
-    const address_en = province;
+    const address_vi = districtName + ", " + province;
+    const address_en = districtName + ", " + province;
     const latitude = 10.0;
     const longitude = 105.0;
 
     // Raw SQL query to insert place because PostGIS geom Unsupported type is NOT NULL
     const inserted = await prisma.$queryRaw`
       INSERT INTO places (
-        province_id, category_id, name_vi, name_en, description_vi, description_en,
+        district_id, category_id, name_vi, name_en, description_vi, description_en,
         address_vi, address_en, latitude, longitude, geom, phone, opening_hours, price_range,
         has_parking, avg_rating, total_reviews, total_favorites, total_visits, total_views
       ) VALUES (
-        ${prov.id}, 3, ${name_vi}, ${name_en}, ${description_vi}, ${description_en},
+        ${dist.id}, 3, ${name_vi}, ${name_en}, ${description_vi}, ${description_en},
         ${address_vi}, ${address_en}, ${latitude}, ${longitude}, ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326),
         '', '08:00 - 17:00', '', false, 0.0, 0, 0, 0, 0
       ) RETURNING id
@@ -197,15 +253,16 @@ class PlaceService {
       });
     }
 
-    return placeMapper.toSimpleDTO(insertedId, name_vi, province, description_vi, image_url);
+    return placeMapper.toSimpleDTO(insertedId, name_vi, province, districtName, description_vi, image_url);
   }
 
   async updatePlace(id, data) {
-    const { name, province, description, image_url } = data;
+    const { name, province, district, description, image_url } = data;
     const placeId = BigInt(id);
 
     const place = await prisma.places.findUnique({
-      where: { id: placeId }
+      where: { id: placeId },
+      include: { districts: { include: { provinces: true } } }
     });
     if (!place) {
       throw new Error("PLACE_NOT_FOUND");
@@ -221,31 +278,59 @@ class PlaceService {
       updateData.description_en = description;
     }
 
-    if (province !== undefined) {
+    if (province !== undefined || district !== undefined) {
+      const activeProvince = province !== undefined ? province : place.districts?.provinces?.name_vi;
+      const activeDistrict = district !== undefined ? district : place.districts?.name_vi;
+
+      // Find or create province
       let prov = await prisma.provinces.findFirst({
         where: {
           OR: [
-            { name_vi: { equals: province, mode: 'insensitive' } },
-            { name_en: { equals: province, mode: 'insensitive' } }
+            { name_vi: { equals: activeProvince, mode: 'insensitive' } },
+            { name_en: { equals: activeProvince, mode: 'insensitive' } }
           ]
         }
       });
 
       if (!prov) {
-        const slug = province.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        const slug = activeProvince.toLowerCase().replace(/[^a-z0-9]+/g, '-');
         prov = await prisma.provinces.create({
           data: {
             slug,
-            name_vi: province,
-            name_en: province,
+            name_vi: activeProvince,
+            name_en: activeProvince,
             is_visible: true
           }
         });
       }
 
-      updateData.province_id = prov.id;
-      updateData.address_vi = province;
-      updateData.address_en = province;
+      // Find or create district
+      let dist = await prisma.districts.findFirst({
+        where: {
+          province_id: prov.id,
+          OR: [
+            { name_vi: { equals: activeDistrict, mode: 'insensitive' } },
+            { name_en: { equals: activeDistrict, mode: 'insensitive' } }
+          ]
+        }
+      });
+
+      if (!dist) {
+        const slug = activeDistrict.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        dist = await prisma.districts.create({
+          data: {
+            province_id: prov.id,
+            slug,
+            name_vi: activeDistrict,
+            name_en: activeDistrict,
+            is_visible: true
+          }
+        });
+      }
+
+      updateData.district_id = dist.id;
+      updateData.address_vi = activeDistrict + ", " + activeProvince;
+      updateData.address_en = activeDistrict + ", " + activeProvince;
     }
 
     if (Object.keys(updateData).length > 0) {

@@ -7,7 +7,11 @@ class CheckinService {
       include: {
         places: {
           include: {
-            provinces: true
+            districts: {
+              include: {
+                provinces: true
+              }
+            }
           }
         }
       },

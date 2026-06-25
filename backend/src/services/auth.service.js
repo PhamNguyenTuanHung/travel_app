@@ -26,7 +26,7 @@ class AuthService {
         role_id: 2, // Quyền user mặc định
         phone: phone || null,
         provider: 'credentials',
-        home_town: null,
+        traveler_type: null,
         bio: null,
         total_points: 0,
         status: 'active',

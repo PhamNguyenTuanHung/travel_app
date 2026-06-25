@@ -18,12 +18,12 @@ class ReviewMapper {
       place: {
         id: Number(review.places?.id),
         name: review.places?.name_vi,
-        province: review.places?.provinces?.name_vi
+        province: review.places?.districts?.provinces?.name_vi
       },
       destination: {
         id: Number(review.places?.id),
         name: review.places?.name_vi,
-        province: review.places?.provinces?.name_vi
+        province: review.places?.districts?.provinces?.name_vi
       }
     };
   }

@@ -10,7 +10,11 @@ class TripService {
           include: {
             places: {
               include: {
-                provinces: true
+                districts: {
+                  include: {
+                    provinces: true
+                  }
+                }
               }
             }
           },
@@ -30,7 +34,11 @@ class TripService {
           include: {
             places: {
               include: {
-                provinces: true
+                districts: {
+                  include: {
+                    provinces: true
+                  }
+                }
               }
             }
           },
