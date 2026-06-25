@@ -1,4 +1,5 @@
 const prisma = require("../config/db");
+const districtMapper = require("../mapper/district.mapper");
 
 class DistrictService {
   async getAllDistricts({ limit = 10, page = 1, search, province_id, is_visible }) {
@@ -32,7 +33,7 @@ class DistrictService {
       prisma.districts.count({ where })
     ]);
 
-    return { count, rows };
+    return { count, rows: districtMapper.toDTOs(rows) };
   }
 
   async getDistrictById(id) {
@@ -46,7 +47,7 @@ class DistrictService {
     if (!district) {
       throw new Error("DISTRICT_NOT_FOUND");
     }
-    return district;
+    return districtMapper.toDTO(district);
   }
 
   async createDistrict(data) {
@@ -62,7 +63,7 @@ class DistrictService {
 
     const finalSlug = slug || name_en.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
-    return await prisma.districts.create({
+    const district = await prisma.districts.create({
       data: {
         province_id: parseInt(province_id),
         slug: finalSlug,
@@ -71,6 +72,7 @@ class DistrictService {
         is_visible: is_visible !== undefined ? (is_visible === 'true' || is_visible === true) : true
       }
     });
+    return districtMapper.toDTO(district);
   }
 
   async updateDistrict(id, data) {
@@ -97,10 +99,11 @@ class DistrictService {
       payload.is_visible = data.is_visible === 'true' || data.is_visible === true;
     }
 
-    return await prisma.districts.update({
+    const updated = await prisma.districts.update({
       where: { id: districtId },
       data: payload
     });
+    return districtMapper.toDTO(updated);
   }
 
   async deleteDistrict(id) {

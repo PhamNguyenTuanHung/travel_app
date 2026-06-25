@@ -22,7 +22,7 @@ const protect = {
     reviewDelete: [auth, permit("review.delete")],
     reviewOwn: [auth, checkOwnOrAdmin],
 
-    // Location
+    // place
     locationRead: [auth, permit("location.read")],
     locationCreate: [auth, permit("location.create")],
     locationUpdate: [auth, permit("location.update")],

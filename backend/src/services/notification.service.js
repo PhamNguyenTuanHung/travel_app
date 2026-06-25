@@ -1,4 +1,5 @@
 const prisma = require("../config/db");
+const notificationMapper = require("../mapper/notification.mapper");
 
 class NotificationService {
   async getAllNotifications({ limit = 10, page = 1, user_id }) {
@@ -29,7 +30,7 @@ class NotificationService {
       prisma.notifications.count({ where })
     ]);
 
-    return { count, rows };
+    return { count, rows: notificationMapper.toDTOs(rows) };
   }
 
   async getMyNotifications(user_id, { limit = 10, page = 1 }) {
@@ -53,7 +54,7 @@ class NotificationService {
       prisma.notifications.count({ where })
     ]);
 
-    return { count, rows };
+    return { count, rows: notificationMapper.toDTOs(rows) };
   }
 
   async getNotificationById(id) {
@@ -73,7 +74,7 @@ class NotificationService {
     if (!notification) {
       throw new Error("NOTIFICATION_NOT_FOUND");
     }
-    return notification;
+    return notificationMapper.toDTO(notification);
   }
 
   async createNotification(data) {
@@ -86,7 +87,7 @@ class NotificationService {
       }
     }
 
-    return await prisma.notifications.create({
+    const notification = await prisma.notifications.create({
       data: {
         user_id: user_id || null,
         title_vi,
@@ -96,6 +97,7 @@ class NotificationService {
         is_read: is_read !== undefined ? (is_read === 'true' || is_read === true) : false
       }
     });
+    return notificationMapper.toDTO(notification);
   }
 
   async updateNotification(id, data) {
@@ -125,10 +127,11 @@ class NotificationService {
       }
     }
 
-    return await prisma.notifications.update({
+    const updated = await prisma.notifications.update({
       where: { id: notificationId },
       data: payload
     });
+    return notificationMapper.toDTO(updated);
   }
 
   async markAsRead(id, user_id) {
@@ -143,10 +146,11 @@ class NotificationService {
       throw new Error("UNAUTHORIZED_NOTIFICATION_ACCESS");
     }
 
-    return await prisma.notifications.update({
+    const updated = await prisma.notifications.update({
       where: { id: notificationId },
       data: { is_read: true }
     });
+    return notificationMapper.toDTO(updated);
   }
 
   async deleteNotification(id) {

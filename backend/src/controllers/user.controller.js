@@ -1,11 +1,10 @@
 const userService = require("../services/user.service");
 const { serializePrisma } = require("../utils/prismaSerializer");
+const userMapper = require("../mapper/user.mapper");
 
 const sanitizeUser = (user) => {
-  if (!user) return user;
-  if (Array.isArray(user)) return user.map(sanitizeUser);
-  const { password_hash, ...cleanUser } = user;
-  return cleanUser;
+  if (Array.isArray(user)) return userMapper.toDTOs(user);
+  return userMapper.toDTO(user);
 };
 
 exports.getUsers = async (req, res) => {

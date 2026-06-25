@@ -1,4 +1,5 @@
 const prisma = require("../config/db");
+const adMapper = require("../mapper/ad.mapper");
 
 class AdService {
   async getAllAds({ limit = 10, page = 1, is_active, type, search }) {
@@ -26,7 +27,7 @@ class AdService {
       prisma.ads.count({ where })
     ]);
 
-    return { count, rows };
+    return { count, rows: adMapper.toDTOs(rows) };
   }
 
   async getAdById(id) {
@@ -36,12 +37,12 @@ class AdService {
     if (!ad) {
       throw new Error("AD_NOT_FOUND");
     }
-    return ad;
+    return adMapper.toDTO(ad);
   }
 
   async createAd(data) {
     const { title, image_url, type, target_url, start_date, end_date, is_active, place_id, provider_id } = data;
-    return await prisma.ads.create({
+    const ad = await prisma.ads.create({
       data: {
         title,
         image_url,
@@ -54,6 +55,7 @@ class AdService {
         provider_id: provider_id ? parseInt(provider_id) : null
       }
     });
+    return adMapper.toDTO(ad);
   }
 
   async updateAd(id, data) {
@@ -80,10 +82,11 @@ class AdService {
       payload.provider_id = data.provider_id ? parseInt(data.provider_id) : null;
     }
 
-    return await prisma.ads.update({
+    const updatedAd = await prisma.ads.update({
       where: { id: adId },
       data: payload
     });
+    return adMapper.toDTO(updatedAd);
   }
 
   async deleteAd(id) {

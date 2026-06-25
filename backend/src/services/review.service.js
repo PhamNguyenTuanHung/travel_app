@@ -1,4 +1,5 @@
 const prisma = require("../config/db");
+const reviewMapper = require("../mapper/review.mapper");
 
 class ReviewService {
   async getAllReviews({ limit = 10, page = 1, place_id, destination_id, user_id }) {
@@ -32,31 +33,7 @@ class ReviewService {
       prisma.reviews.count({ where })
     ]);
 
-    const rows = reviewsList.map(r => ({
-      id: Number(r.id),
-      user_id: r.user_id,
-      place_id: Number(r.place_id),
-      destination_id: Number(r.place_id),
-      rating: r.rating,
-      comment: r.comment,
-      status: r.status,
-      created_at: r.created_at,
-      user: {
-        id: r.users?.id,
-        full_name: r.users?.full_name,
-        email: r.users?.email
-      },
-      place: {
-        id: Number(r.places?.id),
-        name: r.places?.name_vi,
-        province: r.places?.provinces?.name_vi
-      },
-      destination: {
-        id: Number(r.places?.id),
-        name: r.places?.name_vi,
-        province: r.places?.provinces?.name_vi
-      }
-    }));
+    const rows = reviewMapper.toDTOs(reviewsList);
 
     return {
       count: totalCount,
@@ -81,31 +58,7 @@ class ReviewService {
       throw new Error("REVIEW_NOT_FOUND");
     }
 
-    return {
-      id: Number(r.id),
-      user_id: r.user_id,
-      place_id: Number(r.place_id),
-      destination_id: Number(r.place_id),
-      rating: r.rating,
-      comment: r.comment,
-      status: r.status,
-      created_at: r.created_at,
-      user: {
-        id: r.users?.id,
-        full_name: r.users?.full_name,
-        email: r.users?.email
-      },
-      place: {
-        id: Number(r.places?.id),
-        name: r.places?.name_vi,
-        province: r.places?.provinces?.name_vi
-      },
-      destination: {
-        id: Number(r.places?.id),
-        name: r.places?.name_vi,
-        province: r.places?.provinces?.name_vi
-      }
-    };
+    return reviewMapper.toDTO(r);
   }
 
   async createReview(data) {
@@ -155,31 +108,7 @@ class ReviewService {
       }
     });
 
-    return {
-      id: Number(newReview.id),
-      user_id: newReview.user_id,
-      place_id: Number(newReview.place_id),
-      destination_id: Number(newReview.place_id),
-      rating: newReview.rating,
-      comment: newReview.comment,
-      status: newReview.status,
-      created_at: newReview.created_at,
-      user: {
-        id: newReview.users?.id,
-        full_name: newReview.users?.full_name,
-        email: newReview.users?.email
-      },
-      place: {
-        id: Number(newReview.places?.id),
-        name: newReview.places?.name_vi,
-        province: newReview.places?.provinces?.name_vi
-      },
-      destination: {
-        id: Number(newReview.places?.id),
-        name: newReview.places?.name_vi,
-        province: newReview.places?.provinces?.name_vi
-      }
-    };
+    return reviewMapper.toDTO(newReview);
   }
 
   async updateReview(id, data) {
@@ -219,31 +148,7 @@ class ReviewService {
       }
     });
 
-    return {
-      id: Number(updated.id),
-      user_id: updated.user_id,
-      place_id: Number(updated.place_id),
-      destination_id: Number(updated.place_id),
-      rating: updated.rating,
-      comment: updated.comment,
-      status: updated.status,
-      created_at: updated.created_at,
-      user: {
-        id: updated.users?.id,
-        full_name: updated.users?.full_name,
-        email: updated.users?.email
-      },
-      place: {
-        id: Number(updated.places?.id),
-        name: updated.places?.name_vi,
-        province: updated.places?.provinces?.name_vi
-      },
-      destination: {
-        id: Number(updated.places?.id),
-        name: updated.places?.name_vi,
-        province: updated.places?.provinces?.name_vi
-      }
-    };
+    return reviewMapper.toDTO(updated);
   }
 
   async deleteReview(id) {

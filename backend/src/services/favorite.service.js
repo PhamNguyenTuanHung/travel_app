@@ -1,17 +1,19 @@
 const prisma = require("../config/db");
+const favoriteMapper = require("../mapper/favorite.mapper");
 
 class FavoriteService {
   async getFavorites(user_id) {
-    return await prisma.favorites.findMany({
+    const list = await prisma.favorites.findMany({
       where: { user_id },
       include: {
         places: {
-          include: {
-            provinces: true,
-          }
+          // include: {
+          //   provinces: true,
+          // }
         }
       }
     });
+    return favoriteMapper.toDTOs(list);
   }
 
   async addFavorite(user_id, place_id) {
@@ -36,10 +38,10 @@ class FavoriteService {
       });
 
       if (existingFavorite) {
-        return {
+        return favoriteMapper.toDTO({
           ...existingFavorite,
           already_favorited: true
-        };
+        });
       }
 
       const favorite = await tx.favorites.create({
@@ -58,10 +60,10 @@ class FavoriteService {
         }
       });
 
-      return {
+      return favoriteMapper.toDTO({
         ...favorite,
-        already_favorited: false
-      };
+        favorited: true
+      });
     });
   }
 
@@ -100,9 +102,10 @@ class FavoriteService {
         }
       });
 
-      return {
+      return favoriteMapper.toDTO({
+        ...favorite,
         removed: true
-      };
+      });
     });
   }
 }

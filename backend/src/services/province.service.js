@@ -1,4 +1,5 @@
 const prisma = require("../config/db");
+const provinceMapper = require("../mapper/province.mapper");
 
 class ProvinceService {
   async getAllProvinces({ limit = 10, page = 1, search, is_visible }) {
@@ -27,7 +28,7 @@ class ProvinceService {
       prisma.provinces.count({ where })
     ]);
 
-    return { count, rows };
+    return { count, rows: provinceMapper.toDTOs(rows) };
   }
 
   async getProvinceById(id) {
@@ -37,13 +38,13 @@ class ProvinceService {
     if (!province) {
       throw new Error("PROVINCE_NOT_FOUND");
     }
-    return province;
+    return provinceMapper.toDTO(province);
   }
 
   async createProvince(data) {
     const { slug, name_vi, name_en, is_visible } = data;
     const finalSlug = slug || name_en.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    return await prisma.provinces.create({
+    const province = await prisma.provinces.create({
       data: {
         slug: finalSlug,
         name_vi,
@@ -51,6 +52,7 @@ class ProvinceService {
         is_visible: is_visible !== undefined ? (is_visible === 'true' || is_visible === true) : true
       }
     });
+    return provinceMapper.toDTO(province);
   }
 
   async updateProvince(id, data) {
@@ -68,10 +70,11 @@ class ProvinceService {
       payload.is_visible = data.is_visible === 'true' || data.is_visible === true;
     }
 
-    return await prisma.provinces.update({
+    const updated = await prisma.provinces.update({
       where: { id: provinceId },
       data: payload
     });
+    return provinceMapper.toDTO(updated);
   }
 
   async deleteProvince(id) {

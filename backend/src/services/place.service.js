@@ -1,9 +1,11 @@
 const prisma = require("../config/db");
+const placeMapper = require("../mapper/place.mapper");
 
 class PlaceService {
   async getAllPlaces({ limit = 10, page = 1, search, categories }) {
-    const take = parseInt(limit);
-    const skip = (parseInt(page) - 1) * take;
+    const take = Number(limit);
+    const skip = (Number(page) - 1) * take;
+    const now = new Date();
 
     const where = {};
 
@@ -37,26 +39,6 @@ class PlaceService {
             },
           },
         },
-        {
-          categories: {
-            some: {
-              name_vi: {
-                contains: search,
-                mode: "insensitive",
-              },
-            },
-          },
-        },
-        {
-          categories: {
-            some: {
-              name_en: {
-                contains: search,
-                mode: "insensitive",
-              },
-            },
-          },
-        },
       ];
     }
 
@@ -68,61 +50,78 @@ class PlaceService {
       };
     }
 
-    const [placesList] = await Promise.all([
+    const [count, places] = await Promise.all([
+      prisma.places.count({ where }),
+
       prisma.places.findMany({
         where,
         include: {
-          provinces: true,
-          categories: true,
-          place_images: {
-            where: { is_primary: true },
+          provinces: {
+            select: {
+              id: true,
+              name_vi: true,
+              slug: true,
+            },
           },
+
+          categories: {
+            select: {
+              id: true,
+              name_vi: true,
+              name_en: true,
+            },
+          },
+
+          place_images: {
+            where: {
+              is_primary: true,
+            },
+            take: 1,
+          },
+
           ads: {
             where: {
               type: "sponsored",
               is_active: true,
-              start_date: { lte: new Date() },
-              end_date: { gte: new Date() }
-            }
-          }
+              start_date: {
+                lte: now,
+              },
+              end_date: {
+                gte: now,
+              },
+            },
+            take: 1,
+          },
         },
       }),
     ]);
 
-    const mappedPlaces = placesList.map((place) => ({
-      ...place,
-      is_sponsored: place.ads && place.ads.length > 0
-    }));
+    const rows = placeMapper.toListViewDTOs(places)
+      .sort((a, b) => {
+        if (a.is_sponsored && !b.is_sponsored) return -1;
+        if (!a.is_sponsored && b.is_sponsored) return 1;
 
-    mappedPlaces.sort((a, b) => {
-      if (a.is_sponsored && !b.is_sponsored) return -1;
-      if (!a.is_sponsored && b.is_sponsored) return 1;
-      return Number(a.id - b.id);
-    });
+        return b.total_views - a.total_views;
+      });
 
-    const totalCount = mappedPlaces.length;
-    const paginatedPlaces = mappedPlaces.slice(skip, skip + take);
-
-    const rows = paginatedPlaces.map((place) => ({
-      id: Number(place.id),
-      name: place.name_vi,
-      province: place.provinces?.name_vi || "",
-      description: place.description_vi,
-      image_url: place.place_images?.[0]?.image_url || "",
-      categories: place.categories,
-      is_sponsored: place.is_sponsored,
-      slug: place.provinces?.slug || "test"
-    }));
+    const paginatedRows = rows.slice(skip, skip + take);
 
     return {
-      count: totalCount,
-      rows,
+      count,
+      page: Number(page),
+      limit: take,
+      total_pages: Math.ceil(count / take),
+      rows: paginatedRows,
     };
   }
-
-  async getPlaceById(id) {
-    const place = await prisma.places.findUnique({
-      where: { id: BigInt(id) },
+  async getPlaceById(placeId) {
+    const place = await prisma.places.update({
+      where: { id: BigInt(placeId) },
+      data: {
+        total_views: {
+          increment: 1
+        }
+      },
       include: {
         provinces: true,
         place_images: true,
@@ -132,31 +131,11 @@ class PlaceService {
           }
         }
       }
+    }).catch(() => {
+      throw new Error("PLACE_NOT_FOUND");
     });
 
-    if (!place) {
-      throw new Error("PLACE_NOT_FOUND");
-    }
-
-    return {
-      id: Number(place.id),
-      name: place.name_vi,
-      province: place.provinces?.name_vi || '',
-      description: place.description_vi,
-      image_url: place.place_images.find(img => img.is_primary)?.image_url || place.place_images?.[0]?.image_url || '',
-      total_views: place.total_views,
-      reviews: place.reviews.map(r => ({
-        id: Number(r.id),
-        user_id: r.user_id,
-        rating: r.rating,
-        comment: r.comment,
-        user: {
-          id: r.users?.id,
-          full_name: r.users?.full_name,
-          email: r.users?.email
-        }
-      }))
-    };
+    return placeMapper.toDetailDTO(place);
   }
 
   async createPlace(data) {
@@ -218,13 +197,7 @@ class PlaceService {
       });
     }
 
-    return {
-      id: Number(insertedId),
-      name: name_vi,
-      province: province,
-      description: description_vi,
-      image_url: image_url || ''
-    };
+    return placeMapper.toSimpleDTO(insertedId, name_vi, province, description_vi, image_url);
   }
 
   async updatePlace(id, data) {

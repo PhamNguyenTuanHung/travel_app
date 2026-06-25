@@ -1,4 +1,5 @@
 const prisma = require("../config/db");
+const categoryMapper = require("../mapper/category.mapper");
 
 class CategoryService {
   async getAllCategories({ limit = 10, page = 1, search }) {
@@ -23,7 +24,7 @@ class CategoryService {
       prisma.categories.count({ where })
     ]);
 
-    return { count, rows };
+    return { count, rows: categoryMapper.toDTOs(rows) };
   }
 
   async getCategoryById(id) {
@@ -33,12 +34,12 @@ class CategoryService {
     if (!category) {
       throw new Error("CATEGORY_NOT_FOUND");
     }
-    return category;
+    return categoryMapper.toDTO(category);
   }
 
   async createCategory(data) {
     const { icon_url, marker_color, name_vi, name_en } = data;
-    return await prisma.categories.create({
+    const category = await prisma.categories.create({
       data: {
         icon_url,
         marker_color,
@@ -46,6 +47,7 @@ class CategoryService {
         name_en
       }
     });
+    return categoryMapper.toDTO(category);
   }
 
   async updateCategory(id, data) {
@@ -61,10 +63,11 @@ class CategoryService {
     if (data.name_vi !== undefined) payload.name_vi = data.name_vi;
     if (data.name_en !== undefined) payload.name_en = data.name_en;
 
-    return await prisma.categories.update({
+    const updated = await prisma.categories.update({
       where: { id: categoryId },
       data: payload
     });
+    return categoryMapper.toDTO(updated);
   }
 
   async deleteCategory(id) {

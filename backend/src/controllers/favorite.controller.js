@@ -22,7 +22,7 @@ exports.addFavorite = async (req, res) => {
 
 exports.removeFavorite = async (req, res) => {
   try {
-    const result = await favoriteService.removeFavorite(req.user.id, req.params.place_id);
+    const result = await favoriteService.removeFavorite(req.user.id, req.body.place_id);
     res.json(serializePrisma(result));
   } catch (err) {
     res.status(400).json({ message: err.message });

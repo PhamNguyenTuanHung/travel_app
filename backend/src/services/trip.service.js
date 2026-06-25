@@ -1,8 +1,9 @@
 const prisma = require("../config/db");
+const tripMapper = require("../mapper/trip.mapper");
 
 class TripService {
   async getAllTrips(user_id) {
-    return await prisma.trips.findMany({
+    const list = await prisma.trips.findMany({
       where: { user_id },
       include: {
         trip_places: {
@@ -18,6 +19,7 @@ class TripService {
       },
       orderBy: { created_at: 'desc' }
     });
+    return tripMapper.toDTOs(list);
   }
 
   async getTripById(id, user_id) {
@@ -43,17 +45,18 @@ class TripService {
     if (trip.user_id !== user_id) {
       throw new Error("UNAUTHORIZED_TRIP_ACCESS");
     }
-    return trip;
+    return tripMapper.toDTO(trip);
   }
 
   async createTrip(user_id, data) {
     const { title } = data;
-    return await prisma.trips.create({
+    const trip = await prisma.trips.create({
       data: {
         user_id,
         title
       }
     });
+    return tripMapper.toDTO(trip);
   }
 
   async updateTrip(id, user_id, data) {
@@ -65,12 +68,13 @@ class TripService {
       throw new Error("UNAUTHORIZED_TRIP_ACCESS");
     }
 
-    return await prisma.trips.update({
+    const updated = await prisma.trips.update({
       where: { id },
       data: {
         title: data.title
       }
     });
+    return tripMapper.toDTO(updated);
   }
 
   async deleteTrip(id, user_id) {
@@ -106,13 +110,14 @@ class TripService {
       throw new Error("PLACE_NOT_FOUND");
     }
 
-    return await prisma.trip_places.create({
+    const tp = await prisma.trip_places.create({
       data: {
         trip_id,
         place_id: placeId,
         sort_order: parseInt(sort_order || 0)
       }
     });
+    return tripMapper.toTripPlaceDTO(tp);
   }
 
   async removePlaceFromTrip(trip_id, user_id, place_id) {
