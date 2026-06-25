@@ -104,7 +104,8 @@ CREATE TABLE places (
     geom GEOMETRY(Point, 4326) NOT NULL,
     phone VARCHAR(20),
     opening_hours VARCHAR(255),
-    price_range VARCHAR(100),
+    min_price INT,
+    max_price INT,
     has_parking BOOLEAN NOT NULL DEFAULT FALSE,
     avg_rating NUMERIC(2, 1) NOT NULL DEFAULT 0.0,
     total_reviews INT NOT NULL DEFAULT 0,
@@ -341,88 +342,88 @@ INSERT INTO users (id, role_id, email, phone, password_hash, full_name, traveler
 INSERT INTO places (
     id, district_id, category_id, name_vi, name_en, 
     description_vi, description_en, address_vi, address_en, 
-    latitude, longitude, geom, phone, opening_hours, price_range, 
+    latitude, longitude, geom, phone, opening_hours, min_price, max_price, 
     has_parking, avg_rating, total_reviews, total_favorites, total_visits, total_views
 ) VALUES
 -- === CẦN THƠ ===
 (1, 2, 3, 'Chợ nổi Cái Răng', 'Cai Rang Floating Market',
  'Chợ nổi chuyên mua bán nông sản, trái cây ở sông Cái Răng.', 'A bustling floating market famous for local agricultural products.',
  'Sông Cái Răng, Quận Cái Răng, Cần Thơ', 'Cai Rang River, Can Tho',
- 10.005187, 105.746816, ST_SetSRID(ST_MakePoint(105.746816, 10.005187), 4326), '02923123456', '05:00 - 09:00', '20.000đ - 100.000đ', FALSE, 4.8, 2, 45, 120, 1500),
+ 10.005187, 105.746816, ST_SetSRID(ST_MakePoint(105.746816, 10.005187), 4326), '02923123456', '05:00 - 09:00', 20000, 100000, FALSE, 4.8, 2, 45, 120, 1500),
 
 (2, 1, 1, 'Quán Ăn Hồi Đó', 'Hoi Do Restaurant',
  'Quán ăn mang phong cách miền Tây xưa cũ, cơm điền dã.', 'A retro-styled restaurant serving traditional Southern meals.',
  '56 Trần Bình Trọng, Ninh Kiều, Cần Thơ', '56 Tran Binh Trong, Can Tho',
- 10.034179, 105.779183, ST_SetSRID(ST_MakePoint(105.779183, 10.034179), 4326), '0939123456', '10:00 - 22:00', '40.000đ - 150.000đ', TRUE, 4.5, 1, 23, 80, 600),
+ 10.034179, 105.779183, ST_SetSRID(ST_MakePoint(105.779183, 10.034179), 4326), '0939123456', '10:00 - 22:00', 40000, 150000, TRUE, 4.5, 1, 23, 80, 600),
 
 (3, 1, 2, 'Khách sạn Victoria Cần Thơ Resort', 'Victoria Can Tho Resort',
  'Khu nghỉ dưỡng sang trọng bậc nhất bên bờ sông Hậu.', 'Luxury colonial-style resort located on the banks of Hau River.',
  'Phường Cái Khế, Ninh Kiều, Cần Thơ', 'Cai Khe Ward, Can Tho',
- 10.046522, 105.786931, ST_SetSRID(ST_MakePoint(105.786931, 10.046522), 4326), '02923810111', '24/7', '1.500.000đ - 4.000.000đ', TRUE, 4.7, 0, 89, 40, 2300),
+ 10.046522, 105.786931, ST_SetSRID(ST_MakePoint(105.786931, 10.046522), 4326), '02923810111', '24/7', 1500000, 4000000, TRUE, 4.7, 0, 89, 40, 2300),
 
 -- === AN GIANG ===
 (4, 4, 3, 'Rừng tràm Trà Sư', 'Tra Su Cajuput Forest',
  'Hệ sinh thái rừng ngập mặn tuyệt đẹp với thảm bèo xanh mướt.', 'A stunning flooded mangrove forest filled with green duckweed.',
  'Văn Giáo, Tịnh Biên, An Giang', 'Van Giao, Tinh Bien, An Giang',
- 10.553974, 105.050672, ST_SetSRID(ST_MakePoint(105.050672, 10.553974), 4326), NULL, '07:00 - 17:30', '100.000đ - 200.000đ', TRUE, 4.6, 1, 110, 310, 4200),
+ 10.553974, 105.050672, ST_SetSRID(ST_MakePoint(105.050672, 10.553974), 4326), NULL, '07:00 - 17:30', 100000, 200000, TRUE, 4.6, 1, 110, 310, 4200),
 
 (5, 3, 3, 'Miếu Bà Chúa Xứ Núi Sam', 'Ba Chua Xu Temple',
  'Trung tâm hành hương tâm linh lớn nhất Đồng bằng Sông Cửu Long.', 'The most famous spiritual pilgrimage site in the Mekong Delta.',
  'Phường Núi Sam, TP. Châu Đốc, An Giang', 'Nui Sam Ward, Chau Doc, An Giang',
- 10.680194, 105.077553, ST_SetSRID(ST_MakePoint(105.077553, 10.680194), 4326), NULL, '24/7', 'Miễn phí', TRUE, 4.4, 0, 320, 1500, 9800),
+ 10.680194, 105.077553, ST_SetSRID(ST_MakePoint(105.077553, 10.680194), 4326), NULL, '24/7', 0, 0, TRUE, 4.4, 0, 320, 1500, 9800),
 
 (6, 3, 6, 'Fami Homestay Châu Đốc', 'Fami Homestay Chau Doc',
  'Homestay miệt vườn yên bình gần trung tâm thành phố.', 'A peaceful countryside homestay near downtown.',
  'Vĩnh Mỹ, Châu Đốc, An Giang', 'Vinh My, Chau Doc, An Giang',
- 10.701123, 105.122341, ST_SetSRID(ST_MakePoint(105.122341, 10.701123), 4326), '0912345678', '24/7', '350.000đ - 600.000đ', TRUE, 4.8, 0, 15, 12, 180),
+ 10.701123, 105.122341, ST_SetSRID(ST_MakePoint(105.122341, 10.701123), 4326), '0912345678', '24/7', 350000, 600000, TRUE, 4.8, 0, 15, 12, 180),
 
 -- === BẾN TRE ===
 (7, 6, 3, 'Khu du lịch Làng Bè Bến Tre', 'Lang Be Tourist Area',
  'Nơi trải nghiệm các trò chơi dân gian sông nước Miền Tây vui nhộn.', 'An amusement park featuring traditional Southern river games.',
  'An Khánh, Châu Thành, Bến Tre', 'An Khanh, Chau Thanh, Ben Tre',
- 10.292556, 106.329432, ST_SetSRID(ST_MakePoint(106.329432, 10.292556), 4326), '0949911999', '08:00 - 18:00', '50.000đ - 250.000đ', TRUE, 4.3, 0, 64, 520, 3100),
+ 10.292556, 106.329432, ST_SetSRID(ST_MakePoint(106.329432, 10.292556), 4326), '0949911999', '08:00 - 18:00', 50000, 250000, TRUE, 4.3, 0, 64, 520, 3100),
 
 (8, 5, 4, 'Kẹo dừa Thanh Long', 'Thanh Long Coconut Candy',
  'Lò sản xuất kẹo dừa truyền thống lâu đời, tham quan miễn phí.', 'A long-standing traditional coconut candy workshop.',
  'Phường 4, TP. Bến Tre, Bến Tre', 'Ward 4, Ben Tre City, Ben Tre',
- 10.241553, 106.376843, ST_SetSRID(ST_MakePoint(106.376843, 10.241553), 4326), '02753822456', '07:30 - 21:00', '20.000đ - 100.000đ', TRUE, 4.5, 0, 42, 90, 850),
+ 10.241553, 106.376843, ST_SetSRID(ST_MakePoint(106.376843, 10.241553), 4326), '02753822456', '07:30 - 21:00', 20000, 100000, TRUE, 4.5, 0, 42, 90, 850),
 
 -- === ĐỒNG THÁP ===
 (9, 7, 3, 'Làng hoa kiểng Sa Đéc', 'Sa Dec Flower Village',
  'Vương quốc hoa của miền Tây với hàng trăm loài hoa khoe sắc.', 'The flower capital of the Mekong Delta with hundreds of species.',
  'Tân Quy Đông, Sa Đéc, Đồng Tháp', 'Tan Quy Dong, Sa Dec, Dong Thap',
- 10.308722, 105.772543, ST_SetSRID(ST_MakePoint(105.772543, 10.308722), 4326), NULL, '06:00 - 18:00', '20.000đ - 50.000đ', TRUE, 4.6, 0, 210, 890, 5600),
+ 10.308722, 105.772543, ST_SetSRID(ST_MakePoint(105.772543, 10.308722), 4326), NULL, '06:00 - 18:00', 20000, 50000, TRUE, 4.6, 0, 210, 890, 5600),
 
 (10, 7, 1, 'Nhà cổ Huỳnh Thủy Lê', 'Huynh Thuy Le Ancient House',
  'Ngôi nhà cổ nổi tiếng gắn liền với tiểu thuyết "Người tình".', 'The famous ancient house associated with the novel "The Lover".',
  '255A Nguyễn Huệ, Sa Đéc, Đồng Tháp', '255A Nguyen Hue, Sa Dec, Dong Thap',
- 10.291234, 105.761234, ST_SetSRID(ST_MakePoint(105.761234, 10.291234), 4326), '02773863215', '07:00 - 17:00', '20.000đ', TRUE, 4.5, 0, 78, 140, 1900),
+ 10.291234, 105.761234, ST_SetSRID(ST_MakePoint(105.761234, 10.291234), 4326), '02773863215', '07:00 - 17:00', 20000, 20000, TRUE, 4.5, 0, 78, 140, 1900),
 
 -- === KIÊN GIANG ===
 (11, 8, 3, 'Chợ đêm Phú Quốc', 'Phu Quoc Night Market',
  'Thiên đường ẩm thực hải sản và mua sắm về đêm tại đảo ngọc.', 'A paradise of seafood street food and night shopping on Pearl Island.',
  'Đường Bạch Đằng, Dương Đông, Phú Quốc', 'Bach Dang Street, Phu Quoc',
- 10.218522, 103.957543, ST_SetSRID(ST_MakePoint(103.957543, 10.218522), 4326), NULL, '17:00 - 23:30', '50.000đ - 500.000đ', FALSE, 4.2, 0, 430, 2500, 15000),
+ 10.218522, 103.957543, ST_SetSRID(ST_MakePoint(103.957543, 10.218522), 4326), NULL, '17:00 - 23:30', 50000, 500000, FALSE, 4.2, 0, 430, 2500, 15000),
 
 (12, 8, 2, 'Khu nghỉ dưỡng Sunset Sanato', 'Sunset Sanato Resort',
  'Nơi ngắm hoàng hôn đẹp nhất Phú Quốc với các kiến trúc độc lạ.', 'The most famous sunset-watching beach resort in Phu Quoc.',
  'Bãi Trường, Dương Tơ, Phú Quốc', 'Truong Beach, Duong To, Phu Quoc',
- 10.174122, 103.961234, ST_SetSRID(ST_MakePoint(103.961234, 10.174122), 4326), '02976266666', '24/7', '1.200.000đ - 3.500.000đ', TRUE, 4.4, 0, 190, 680, 7400),
+ 10.174122, 103.961234, ST_SetSRID(ST_MakePoint(103.961234, 10.174122), 4326), '02976266666', '24/7', 1200000, 3500000, TRUE, 4.4, 0, 190, 680, 7400),
 
 (13, 1, 5, 'Chợ Nổi Coffee', 'Cho Noi Coffee',
  'Quán cafe view sông ngắm ghe thuyền lướt qua cực chill.', 'A river-view cafe to watch local boats passing by.',
  'Ninh Kiều, Cần Thơ', 'Ninh Kieu, Can Tho',
- 10.028912, 105.780123, ST_SetSRID(ST_MakePoint(105.780123, 10.028912), 4326), NULL, '06:00 - 22:00', '25.000đ - 50.000đ', TRUE, 4.5, 0, 12, 35, 450),
+ 10.028912, 105.780123, ST_SetSRID(ST_MakePoint(105.780123, 10.028912), 4326), NULL, '06:00 - 22:00', 25000, 50000, TRUE, 4.5, 0, 12, 35, 450),
 
 (14, 5, 5, 'Ba Đống Cafe Bến Tre', 'Ba Dong Cafe',
  'Quán cafe phong cách miệt vườn, không gian rợp bóng dừa xanh.', 'A garden-style cafe surrounded by green coconut trees.',
  'Hùng Vương, TP. Bến Tre', 'Hung Vuong, Ben Tre City',
- 10.238912, 106.379123, ST_SetSRID(ST_MakePoint(106.379123, 10.238912), 4326), NULL, '07:00 - 22:00', '20.000đ - 45.000đ', TRUE, 4.3, 0, 8, 14, 290),
+ 10.238912, 106.379123, ST_SetSRID(ST_MakePoint(106.379123, 10.238912), 4326), NULL, '07:00 - 22:00', 20000, 45000, TRUE, 4.3, 0, 8, 14, 290),
 
 (15, 9, 4, 'Đặc sản Tung Lò Mò Châu Phong', 'Chau Phong Tung Lo Mo',
  'Nơi bán lạp xưởng bò truyền thống của người Chăm An Giang.', 'Traditional beef sausage workshop of Cham ethnic group.',
  'Châu Phong, Tân Châu, An Giang', 'Chau Phong, Tan Chau, An Giang',
- 10.821345, 105.152345, ST_SetSRID(ST_MakePoint(105.152345, 10.821345), 4326), '0988776655', '06:00 - 21:00', '150.000đ - 300.000đ', TRUE, 4.7, 0, 56, 120, 1100);
+ 10.821345, 105.152345, ST_SetSRID(ST_MakePoint(105.152345, 10.821345), 4326), '0988776655', '06:00 - 21:00', 150000, 300000, TRUE, 4.7, 0, 56, 120, 1100);
 
 SELECT setval('places_id_seq', (SELECT MAX(id) FROM places));
 

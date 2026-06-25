@@ -232,12 +232,12 @@ class PlaceService {
     const inserted = await prisma.$queryRaw`
       INSERT INTO places (
         district_id, category_id, name_vi, name_en, description_vi, description_en,
-        address_vi, address_en, latitude, longitude, geom, phone, opening_hours, price_range,
+        address_vi, address_en, latitude, longitude, geom, phone, opening_hours, min_price, max_price,
         has_parking, avg_rating, total_reviews, total_favorites, total_visits, total_views
       ) VALUES (
         ${dist.id}, 3, ${name_vi}, ${name_en}, ${description_vi}, ${description_en},
         ${address_vi}, ${address_en}, ${latitude}, ${longitude}, ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326),
-        '', '08:00 - 17:00', '', false, 0.0, 0, 0, 0, 0
+        '', '08:00 - 17:00', NULL, NULL, false, 0.0, 0, 0, 0, 0
       ) RETURNING id
     `;
 

@@ -34,7 +34,11 @@ class PlaceMapper {
       description: place.description_vi,
       image_url: place.place_images ? (place.place_images.find(img => img.is_primary)?.image_url || place.place_images?.[0]?.image_url || '') : '',
       total_views: place.total_views,
-      price_range: place.price_range,
+      min_price: place.min_price !== null ? Number(place.min_price) : null,
+      max_price: place.max_price !== null ? Number(place.max_price) : null,
+      price_range: (place.min_price !== null && place.max_price !== null)
+        ? (place.min_price === place.max_price ? `${place.min_price.toLocaleString('vi-VN')}đ` : `${place.min_price.toLocaleString('vi-VN')}đ - ${place.max_price.toLocaleString('vi-VN')}đ`)
+        : (place.min_price !== null ? `${place.min_price.toLocaleString('vi-VN')}đ` : ""),
       reviews: place.reviews ? place.reviews.map(r => ({
         id: Number(r.id),
         user_id: r.user_id,
